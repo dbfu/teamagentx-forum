@@ -1,0 +1,15 @@
+{
+  "name": "teamagentx-forum",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "pnpm --filter './web' --filter './server' run dev",
+    "build": "pnpm --filter './web' --filter './server' run build",
+    "start": "pnpm --filter './server' run start"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.0"
+}

@@ -1,0 +1,2 @@
+// 业务模块目录
+// 每个模块包含：service.ts、controller.ts、routes.ts、types.ts
