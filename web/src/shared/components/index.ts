@@ -1,2 +1,10 @@
 // 公共组件导出
-// 示例：export { Button } from './Button'
+export { default as Avatar } from './Avatar'
+export { default as Header } from './Header'
+export { default as PostCard } from './PostCard'
+export { default as PostList } from './PostList'
+export { default as CommentList } from './CommentList'
+export { default as Pagination } from './Pagination'
+export { default as Modal } from './Modal'
+export { default as Loading } from './Loading'
+export { default as EmptyState } from './EmptyState'
