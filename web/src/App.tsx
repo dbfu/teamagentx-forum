@@ -3,6 +3,7 @@ import HomePage from './modules/post/pages/HomePage'
 import CreatePostPage from './modules/post/pages/CreatePostPage'
 import PostDetailPage from './modules/post/pages/PostDetailPage'
 import SectionPage from './modules/category/pages/SectionPage'
+import UserPage from './modules/user/pages/UserPage'
 import LoginPage from './modules/auth/pages/LoginPage'
 
 function App() {
@@ -13,9 +14,9 @@ function App() {
         <Route path="/create-post" element={<CreatePostPage />} />
         <Route path="/post/:id" element={<PostDetailPage />} />
         <Route path="/section/:slug" element={<SectionPage />} />
+        <Route path="/user/:id" element={<UserPage />} />
         <Route path="/login" element={<LoginPage />} />
         {/* 其他路由后续添加 */}
-        {/* <Route path="/user/:id" element={<UserPage />} /> */}
       </Routes>
     </Router>
   )
