@@ -4,185 +4,172 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URL")
+  url      = "mysql://forumuser:ForumPass123@124.220.65.225:3306/teamagentx_forum"
 }
 
-// 用户模型
-model User {
-  id            String    @id @default(uuid())
-  email         String    @unique
-  password      String
-  nickname      String?
-  avatar        String?
-  role          Role      @default(USER)
-  emailVerified Boolean   @default(false) @map("email_verified")
-  posts         Post[]
-  comments      Comment[]
-  likes         Like[]
-  favorites     Favorite[]
-  reports       Report[]
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
-
-  @@map("users")
-}
-
-enum Role {
-  USER
-  ADMIN
-}
-
-// 版块模型
-model Category {
-  id          String   @id @default(uuid())
+model categories {
+  id          String   @id
   name        String
   slug        String   @unique
   description String?
   order       Int      @default(0)
-  posts       Post[]
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
-  @@map("categories")
+  created_at  DateTime @default(now())
+  updated_at  DateTime
+  posts       posts[]
 }
 
-// 帖子模型
-model Post {
-  id           String     @id @default(uuid())
-  title        String
-  content      String     @db.Text
-  authorId     String     @map("author_id")
-  author       User       @relation(fields: [authorId], references: [id])
-  categoryId   String     @map("category_id")
-  category     Category   @relation(fields: [categoryId], references: [id])
-  isTop        Boolean    @default(false) @map("is_top")
-  isEssence    Boolean    @default(false) @map("is_essence")
-  viewCount    Int        @default(0) @map("view_count")
-  likeCount    Int        @default(0) @map("like_count")
-  commentCount Int        @default(0) @map("comment_count")
-  status       PostStatus @default(NORMAL)
-  comments     Comment[]
-  likes        Like[]
-  favorites    Favorite[]
-  reports      Report[]
-  createdAt    DateTime   @default(now()) @map("created_at")
-  updatedAt    DateTime   @updatedAt @map("updated_at")
+model comments {
+  id             String          @id
+  content        String          @db.Text
+  author_id      String
+  post_id        String
+  parent_id      String?
+  like_count     Int             @default(0)
+  status         comments_status @default(NORMAL)
+  created_at     DateTime        @default(now())
+  updated_at     DateTime
+  users          users           @relation(fields: [author_id], references: [id])
+  comments       comments?       @relation("commentsTocomments", fields: [parent_id], references: [id])
+  other_comments comments[]      @relation("commentsTocomments")
+  posts          posts           @relation(fields: [post_id], references: [id])
+  likes          likes[]
+  reports        reports[]
 
-  @@index([authorId])
-  @@index([categoryId])
-  @@index([createdAt])
-  @@index([isTop])
-  @@index([isEssence])
-  @@map("posts")
+  @@index([author_id])
+  @@index([created_at])
+  @@index([parent_id])
+  @@index([post_id])
 }
 
-enum PostStatus {
-  NORMAL
-  DELETED
+model favorites {
+  id         String   @id
+  user_id    String
+  post_id    String
+  created_at DateTime @default(now())
+  posts      posts    @relation(fields: [post_id], references: [id])
+  users      users    @relation(fields: [user_id], references: [id])
+
+  @@unique([user_id, post_id])
+  @@index([post_id], map: "favorites_post_id_fkey")
 }
 
-// 评论模型
-model Comment {
-  id        String        @id @default(uuid())
-  content   String        @db.Text
-  authorId  String        @map("author_id")
-  author    User          @relation(fields: [authorId], references: [id])
-  postId    String        @map("post_id")
-  post      Post          @relation(fields: [postId], references: [id])
-  parentId  String?       @map("parent_id")
-  parent    Comment?      @relation("CommentReplies", fields: [parentId], references: [id])
-  replies   Comment[]     @relation("CommentReplies")
-  likeCount Int           @default(0) @map("like_count")
-  status    CommentStatus @default(NORMAL)
-  likes     Like[]
-  reports   Report[]
-  createdAt DateTime      @default(now()) @map("created_at")
-  updatedAt DateTime      @updatedAt @map("updated_at")
+model likes {
+  id         String    @id
+  user_id    String
+  post_id    String?
+  comment_id String?
+  created_at DateTime  @default(now())
+  comments   comments? @relation(fields: [comment_id], references: [id])
+  posts      posts?    @relation(fields: [post_id], references: [id])
+  users      users     @relation(fields: [user_id], references: [id])
 
-  @@index([authorId])
-  @@index([postId])
-  @@index([parentId])
-  @@index([createdAt])
-  @@map("comments")
+  @@unique([user_id, comment_id])
+  @@unique([user_id, post_id])
+  @@index([comment_id], map: "likes_comment_id_fkey")
+  @@index([post_id], map: "likes_post_id_fkey")
 }
 
-enum CommentStatus {
-  NORMAL
-  DELETED
+model post_limits {
+  id         String   @id
+  user_id    String
+  date       DateTime
+  count      Int      @default(0)
+  created_at DateTime @default(now())
+  updated_at DateTime
+
+  @@unique([user_id, date])
 }
 
-// 点赞模型
-model Like {
-  id        String   @id @default(uuid())
-  userId    String   @map("user_id")
-  user      User     @relation(fields: [userId], references: [id])
-  postId    String?  @map("post_id")
-  post      Post?    @relation(fields: [postId], references: [id])
-  commentId String?  @map("comment_id")
-  comment   Comment? @relation(fields: [commentId], references: [id])
-  createdAt DateTime @default(now()) @map("created_at")
+model posts {
+  id            String       @id
+  title         String
+  content       String       @db.Text
+  author_id     String
+  category_id   String
+  is_top        Boolean      @default(false)
+  is_essence    Boolean      @default(false)
+  view_count    Int          @default(0)
+  like_count    Int          @default(0)
+  comment_count Int          @default(0)
+  status        posts_status @default(NORMAL)
+  created_at    DateTime     @default(now())
+  updated_at    DateTime
+  comments      comments[]
+  favorites     favorites[]
+  likes         likes[]
+  users         users        @relation(fields: [author_id], references: [id])
+  categories    categories   @relation(fields: [category_id], references: [id])
+  reports       reports[]
 
-  @@unique([userId, postId])
-  @@unique([userId, commentId])
-  @@map("likes")
+  @@index([author_id])
+  @@index([category_id])
+  @@index([created_at])
+  @@index([is_essence])
+  @@index([is_top])
 }
 
-// 收藏模型
-model Favorite {
-  id        String   @id @default(uuid())
-  userId    String   @map("user_id")
-  user      User     @relation(fields: [userId], references: [id])
-  postId    String   @map("post_id")
-  post      Post     @relation(fields: [postId], references: [id])
-  createdAt DateTime @default(now()) @map("created_at")
-
-  @@unique([userId, postId])
-  @@map("favorites")
-}
-
-// 举报模型
-model Report {
-  id          String       @id @default(uuid())
-  userId      String       @map("user_id")
-  user        User         @relation(fields: [userId], references: [id])
-  postId      String?      @map("post_id")
-  post        Post?        @relation(fields: [postId], references: [id])
-  commentId   String?      @map("comment_id")
-  comment     Comment?     @relation(fields: [commentId], references: [id])
-  reason      ReportReason
+model reports {
+  id          String         @id
+  user_id     String
+  post_id     String?
+  comment_id  String?
+  reason      reports_reason
   description String?
-  status      ReportStatus @default(PENDING)
-  createdAt   DateTime     @default(now()) @map("created_at")
-  updatedAt   DateTime     @updatedAt @map("updated_at")
+  status      reports_status @default(PENDING)
+  created_at  DateTime       @default(now())
+  updated_at  DateTime
+  comments    comments?      @relation(fields: [comment_id], references: [id])
+  posts       posts?         @relation(fields: [post_id], references: [id])
+  users       users          @relation(fields: [user_id], references: [id])
 
-  @@unique([userId, postId])
-  @@unique([userId, commentId])
+  @@unique([user_id, comment_id])
+  @@unique([user_id, post_id])
+  @@index([comment_id], map: "reports_comment_id_fkey")
+  @@index([post_id], map: "reports_post_id_fkey")
   @@index([status])
-  @@map("reports")
 }
 
-enum ReportReason {
+model users {
+  id             String      @id
+  email          String      @unique
+  password       String
+  nickname       String?
+  avatar         String?
+  role           users_role  @default(USER)
+  email_verified Boolean     @default(false)
+  created_at     DateTime    @default(now())
+  updated_at     DateTime
+  comments       comments[]
+  favorites      favorites[]
+  likes          likes[]
+  posts          posts[]
+  reports        reports[]
+}
+
+enum reports_reason {
   SPAM
   ATTACK
   PLAGIARISM
   OTHER
 }
 
-enum ReportStatus {
+enum users_role {
+  USER
+  ADMIN
+}
+
+enum comments_status {
+  NORMAL
+  DELETED
+}
+
+enum reports_status {
   PENDING
   RESOLVED
   REJECTED
 }
 
-// 发帖限制模型
-model PostLimit {
-  id        String   @id @default(uuid())
-  userId    String   @map("user_id")
-  date      DateTime
-  count     Int      @default(0)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@unique([userId, date])
-  @@map("post_limits")
+enum posts_status {
+  NORMAL
+  DELETED
 }

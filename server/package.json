@@ -4,21 +4,24 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/server.ts",
+    "dev": "DATABASE_URL=mysql://forumuser:ForumPass123@124.220.65.225:3306/teamagentx_forum tsx src/server.ts",
     "build": "tsc -b",
-    "start": "node dist/server.js",
-    "db:generate": "prisma generate",
-    "db:push": "prisma db push",
-    "db:migrate": "prisma migrate dev",
-    "db:studio": "prisma studio"
+    "start": "DATABASE_URL=mysql://forumuser:ForumPass123@124.220.65.225:3306/teamagentx_forum node dist/server.js",
+    "db:generate": "DATABASE_URL=mysql://forumuser:ForumPass123@124.220.65.225:3306/teamagentx_forum prisma generate",
+    "db:push": "DATABASE_URL=mysql://forumuser:ForumPass123@124.220.65.225:3306/teamagentx_forum prisma db push",
+    "db:migrate": "DATABASE_URL=mysql://forumuser:ForumPass123@124.220.65.225:3306/teamagentx_forum prisma migrate dev",
+    "db:studio": "DATABASE_URL=mysql://forumuser:ForumPass123@124.220.65.225:3306/teamagentx_forum prisma studio"
   },
   "dependencies": {
     "@fastify/cors": "^9.0.0",
     "@fastify/helmet": "^11.0.0",
     "@fastify/jwt": "^8.0.0",
+    "@fastify/multipart": "^8.0.0",
     "@fastify/rate-limit": "^9.0.0",
+    "@fastify/static": "^7.0.0",
     "@prisma/client": "^5.10.0",
     "bcrypt": "^5.1.1",
+    "dotenv": "^17.4.2",
     "fastify": "^4.26.0"
   },
   "devDependencies": {
