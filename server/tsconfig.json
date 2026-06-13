@@ -9,7 +9,7 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
+    "forceConsistentCasingInFileName": true,
     "resolveJsonModule": true,
     "declaration": true,
     "declarationMap": true,
