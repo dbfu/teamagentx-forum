@@ -1,7 +1,10 @@
+import { useNavigate } from 'react-router-dom'
 import Header from '../../../shared/components/Header'
 import PostList from '../../../shared/components/PostList'
 
 function HomePage() {
+  const navigate = useNavigate()
+
   // Mock data - 实际应该从API获取
   const user = {
     id: 'user-123',
@@ -53,7 +56,7 @@ function HomePage() {
             currentPage={1}
             totalPages={5}
             onPageChange={(page: number) => console.log('Page changed to:', page)}
-            onPostClick={(id: string) => console.log('Clicked post:', id)}
+            onPostClick={(id: string) => navigate(`/post/${id}`)}
           />
         </div>
       </main>
